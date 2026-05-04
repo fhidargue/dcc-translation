@@ -1,0 +1,31 @@
+[project]
+name = "pipelineproject-fhidargue"
+version = "1.0.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.4.4",
+    "pymongo>=4.17.0",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0.3",
+    "usd-core>=26.3",
+]
+
+[dependency-groups]
+dev = [
+    "nox>=2026.4.10",
+    "pytest>=9.0.3",
+    "ruff>=0.15.11",
+]
+
+[project.scripts]
+dcc-translate = "dcc_translation.cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dcc_translation*"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

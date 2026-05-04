@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: docker.io/library/mongo:latest
+    container_name: dcc_translation_mongo
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DCC_MONGO_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DCC_MONGO_ADMIN_PASS}
+      MONGO_INITDB_DATABASE: ${DCC_MONGO_DB}
+
+    ports:
+      - "${DCC_MONGO_PORT}:27017"
+
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

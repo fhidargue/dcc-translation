@@ -1,0 +1,31 @@
+pipeline_target: unreal
+
+require_frozen_transforms:
+  enabled: true
+  severity: error
+
+allowed_node_types:
+  - transform
+  - mesh
+
+forbidden_node_types:
+  - constraint
+  - locator
+
+unit_scale: cm
+
+require_geometry:
+  enabled: true
+  ignore_transforms_without_shapes: true
+  severity: error
+
+enforce_naming_convention:
+  enabled: true
+  severity: warning
+
+exclude_node_types:
+  - camera
+  - locator
+  - constraint
+
+allow_empty_transforms: true
