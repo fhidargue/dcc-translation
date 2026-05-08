@@ -16,7 +16,10 @@ class MongoSetup:
         self.db = self.client[db_name]
         self.db_name = db_name
 
-    def create_pipeline_user(self):
+    def create_pipeline_user(self) -> None:
+        """
+        Create a dedicated user for the pipeline with read/write permissions on the database
+        """
         try:
             users = self.client.admin.command("usersInfo")
 
@@ -35,7 +38,10 @@ class MongoSetup:
             if "already exists" not in str(e):
                 raise
 
-    def create_collections(self):
+    def create_collections(self) -> None:
+        """
+        Create necessary collections if they don't exist
+        """
         required = {
             "translations",
             "dependencies",
@@ -47,7 +53,11 @@ class MongoSetup:
         for name in required - existing:
             self.db.create_collection(name)
 
-    def create_indexes(self):
+    def create_indexes(self) -> None:
+        """
+        Create indexes for the collections
+        """
+
         translations = self.db["translations"]
         dependencies = self.db["dependencies"]
         validation_reports = self.db["validation_reports"]
@@ -61,7 +71,10 @@ class MongoSetup:
 
         validation_reports.create_index("publish_id")
 
-    def bootstrap(self):
+    def bootstrap(self) -> None:
+        """
+        Run all setup steps
+        """
         self.create_pipeline_user()
         self.create_collections()
         self.create_indexes()

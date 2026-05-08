@@ -13,9 +13,13 @@ from dcc_translation.utils.maya_logging import info
 
 
 # Helper functions
-def resolve_adapter(dcc: str, command: str):
+def resolve_adapter(dcc: str, command: str) -> object:
     """
     Resolve adapter implementation from CLI argument
+
+    Args:
+        dcc (str): DCC name (e.g. "maya", "mock")
+        command (str): Command being executed (e.g. "publish", "validate", "inspect")
     """
 
     if dcc == "maya":
@@ -43,6 +47,9 @@ def resolve_adapter(dcc: str, command: str):
 def resolve_profile(target: str) -> str:
     """
     Resolve validation profile path from target name
+
+    Args:
+        target (str): Target DCC (e.g. "unreal", "houdini")
     """
 
     package_root = Path(dcc_translation.__file__).parent
@@ -54,9 +61,12 @@ def resolve_profile(target: str) -> str:
     return str(profile_path)
 
 
-def print_registry_table(rows):
+def print_registry_table(rows: list[dict]) -> None:
     """
     Pretty-print registry rows
+
+    Args:
+        rows (list of dict): Registry records to print
     """
 
     print(f"\nPublish history ({len(rows)} records):\n")
@@ -119,7 +129,13 @@ def print_registry_table(rows):
         )
 
 
-def handle_publish(args):
+def handle_publish(args: argparse.Namespace) -> None:
+    """
+    Handles the 'publish' command: runs the full translation pipeline and records results in the registry
+
+    Args:
+        args: Parsed CLI arguments
+    """
     adapter = resolve_adapter(args.dcc, "publish")
     profile_path = resolve_profile(args.target)
     output_path = Path(args.out)
@@ -150,7 +166,13 @@ def handle_publish(args):
         print_registry_table(rows[-5:])
 
 
-def handle_validate(args):
+def handle_validate(args: argparse.Namespace) -> None:
+    """
+    Handles the 'validate' command: runs validation only and prints results to console
+
+    Args:
+        args: Parsed CLI arguments
+    """
     profile_path = resolve_profile(args.target)
     adapter = resolve_adapter(args.dcc, "validate")
 
@@ -178,9 +200,15 @@ def handle_validate(args):
         print("Scene passed validation")
 
 
-def handle_inspect(args):
+def handle_inspect(args: argparse.Namespace) -> None:
+    """
+    Handles the 'inspect' command: fetches and prints publish records from the registry
+
+    Args:
+        args: Parsed CLI arguments
+    """
     try:
-        backend = select_registry_backend()
+        backend = args.backend if args.backend else select_registry_backend()
     except Exception as e:
         print(f"Registry backend unavailable: {e}")
         return
@@ -199,7 +227,11 @@ def handle_inspect(args):
     print_registry_table(rows)
 
 
-def main():
+def main() -> None:
+    """
+    Entry point for the CLI application
+    """
+
     parser = argparse.ArgumentParser(
         prog="dcc-translate",
         description="DCC Translation Pipeline CLI",

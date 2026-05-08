@@ -1,4 +1,12 @@
-def safe_xform(self, node, attr):
+def safe_xform(self, node: str, attr: str) -> list | None:
+    """
+    Safely query for the transform attribute of a node, returning None if it fails
+
+    Args:
+        node (str): The name of the node to query
+        attr (str): The transform attribute to query (e.g. "translate", "rotate", "scale")
+    """
+
     try:
         return self.cmds.xform(
             node,
@@ -10,7 +18,14 @@ def safe_xform(self, node, attr):
         return None
 
 
-def extract_rotate_order(self, transform):
+def extract_rotate_order(self, transform: str) -> str:
+    """
+    Extract the rotation order of a transform node, returning "xyz" if it fails
+
+    Args:
+        transform (str): The name of the transform node to query
+    """
+
     try:
         idx = self.cmds.getAttr(f"{transform}.rotateOrder")
     except Exception:
@@ -19,7 +34,14 @@ def extract_rotate_order(self, transform):
     return ["xyz", "yzx", "zxy", "xzy", "yxz", "zyx"][idx]
 
 
-def extract_visibility(self, transform):
+def extract_visibility(self, transform: str) -> bool:
+    """
+    Extract the visibility of a transform node, returning True if it fails
+
+    Args:
+        transform (str): The name of the transform node to query
+    """
+
     try:
         visibility = self.cmds.getAttr(f"{transform}.visibility")
     except Exception:
@@ -34,7 +56,14 @@ def extract_visibility(self, transform):
     return visibility
 
 
-def split_namespace(transform):
+def split_namespace(transform: str) -> tuple[str | None, str]:
+    """
+    Correctly split the namespace from a transform name
+
+    Args:
+        transform (str): The name of the transform node to split
+    """
+
     short = transform.split("|")[-1]
 
     if ":" not in short:
@@ -44,7 +73,15 @@ def split_namespace(transform):
     return ":".join(parts[:-1]), parts[-1]
 
 
-def detect_instance(self, transform, mesh_path):
+def detect_instance(self, transform: str, mesh_path: str) -> str | None:
+    """
+    Detect whether a mesh shape is instanced by tracking mesh UUIDs
+
+    Args:
+        transform (str): The name of the transform node to query
+        mesh_path (str): The path of the mesh to check
+    """
+
     if not mesh_path:
         return None
 
@@ -60,7 +97,14 @@ def detect_instance(self, transform, mesh_path):
     return self._mesh_registry[uuid]
 
 
-def extract_points(self, mesh):
+def extract_points(self, mesh: str) -> list | None:
+    """
+    Extract vertex positions from a mesh shape, returning None if it fails
+
+    Args:
+        mesh (str): The name of the mesh shape to extract from
+    """
+
     if self.om:
         try:
             sel = self.om.MSelectionList()
@@ -83,7 +127,14 @@ def extract_points(self, mesh):
         return None
 
 
-def extract_topology(self, mesh):
+def extract_topology(self, mesh: str) -> tuple[list | None, list | None]:
+    """
+    Extract topology information from a mesh shape, returning None if it fails
+
+    Args:
+        mesh (str): The name of the mesh shape to extract from
+    """
+
     try:
         counts = []
         indices = []
@@ -98,7 +149,14 @@ def extract_topology(self, mesh):
         return None, None
 
 
-def extract_normals(self, mesh):
+def extract_normals(self, mesh: str) -> list | None:
+    """
+    Extract vertex normals from a mesh shape, returning None if it fails
+
+    Args:
+        mesh (str): The name of the mesh shape to extract from
+    """
+
     if not self.om:
         return None
 
@@ -116,7 +174,14 @@ def extract_normals(self, mesh):
         return None
 
 
-def extract_uv_sets(self, mesh):
+def extract_uv_sets(self, mesh: str) -> dict[str, list]:
+    """
+    Extract UV set data from a mesh shape, returning an empty dict if it fails
+
+    Args:
+        mesh (str): The name of the mesh shape to extract from
+    """
+
     uv_sets = {}
 
     try:
@@ -134,7 +199,14 @@ def extract_uv_sets(self, mesh):
     return uv_sets
 
 
-def extract_material_data(self, mesh):
+def extract_material_data(self, mesh: str) -> tuple[str | None, dict]:
+    """
+    Extract material data from a mesh shape, returning None if it fails
+
+    Args:
+        mesh (str): The name of the mesh shape to extract from
+    """
+
     if not mesh:
         return None, {}
 

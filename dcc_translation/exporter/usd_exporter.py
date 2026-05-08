@@ -1,6 +1,7 @@
 import os
 
 from pxr import Usd, UsdGeom, Sdf, Gf, Vt, UsdShade
+from dcc_translation.core.scene_graph import SceneNode
 from dcc_translation.utils.utils import sanitize_usd_name
 
 
@@ -20,13 +21,16 @@ class USDExporter:
 
         self.stage = Usd.Stage.CreateNew(output_path)
 
-        # Set Z as up axis for Unreal
-        UsdGeom.SetStageUpAxis(self.stage, UsdGeom.Tokens.z)
+        # Set Y as up axis for Unreal
+        UsdGeom.SetStageUpAxis(self.stage, UsdGeom.Tokens.y)
         UsdGeom.SetStageMetersPerUnit(self.stage, 0.01)
 
-    def export(self, scene_nodes):
+    def export(self, scene_nodes: list) -> None:
         """
         Export SceneGraph nodes to USD
+
+        Args:
+            scene_nodes (list): List of SceneGraphNode to export
         """
 
         root = self.stage.DefinePrim("/SceneRoot")
@@ -40,7 +44,15 @@ class USDExporter:
 
         self.stage.GetRootLayer().Save()
 
-    def _export_node(self, node, parent_path="/SceneRoot"):
+    def _export_node(self, node: SceneNode, parent_path: str = "/SceneRoot") -> None:
+        """
+        Export a single node to USD
+
+        Args:
+            node (SceneGraphNode): The node to export
+            parent_path (str): The path of the parent node
+        """
+
         short_name = sanitize_usd_name(
             node.metadata.get("maya", {}).get("shortName", node.name)
         )
@@ -78,7 +90,14 @@ class USDExporter:
         for child in node.children:
             self._export_node(child, node_path)
 
-    def _apply_transform(self, usd_prim, node):
+    def _apply_transform(self, usd_prim: Usd.Prim, node: SceneNode) -> None:
+        """
+        Apply transformation data from the node to the USD prim
+
+        Args:
+            usd_prim (Usd.Prim): The USD prim to apply the transform to
+            node (SceneGraphNode): The source node containing transformation data
+        """
         if node.transform is None:
             return
 
@@ -112,7 +131,15 @@ class USDExporter:
         if rotate_order is not None:
             usd_prim.SetCustomDataByKey("maya_rotateOrder", rotate_order)
 
-    def _apply_metadata(self, usd_prim, node):
+    def _apply_metadata(self, usd_prim: Usd.Prim, node: SceneNode) -> None:
+        """
+        Apply metadata from the node to the USD prim
+
+        Args:
+            usd_prim (Usd.Prim): The USD prim to apply the metadata to
+            node (SceneGraphNode): The source node containing metadata
+        """
+
         usd_prim.SetCustomDataByKey(
             "scenegraph_uuid",
             node.uuid,
@@ -131,9 +158,13 @@ class USDExporter:
                 "invisible"
             )
 
-    def _apply_mesh_geometry(self, mesh_prim, node):
+    def _apply_mesh_geometry(self, mesh_prim: UsdGeom.Mesh, node: SceneNode) -> None:
         """
         Write polygon topology into USD Mesh prim
+
+        Args:
+            mesh_prim (UsdGeom.Mesh): The USD Mesh prim to write geometry to
+            node (SceneGraphNode): The source node containing geometry data
         """
 
         if node.points is None:
@@ -164,7 +195,14 @@ class USDExporter:
                     UsdGeom.Tokens.vertex,
                 ).Set([tuple(c) for c in coords])
 
-    def _apply_material_binding(self, usd_prim, node):
+    def _apply_material_binding(self, usd_prim: Usd.Prim, node: SceneNode) -> None:
+        """
+        Apply material binding to the USD prim based on the node's metadata
+
+        Args:
+            usd_prim (Usd.Prim): The USD prim to apply the material binding to
+            node (SceneGraphNode): The source node containing material metadata
+        """
         maya_data = node.metadata.get("maya", {})
         material_name = maya_data.get("material")
 
@@ -186,7 +224,18 @@ class USDExporter:
 
         textures = maya_data.get("textures", {})
 
-        def create_texture_output(texture_label, texture_path, output_type="rgb"):
+        def create_texture_output(
+            texture_label, texture_path, output_type="rgb"
+        ) -> UsdShade.Output:
+            """
+            Helper function to create a UsdUVTexture shader for a given texture path and connect it to the material
+
+            Args:
+                texture_label (str): A label for the texture (e.g. "DiffuseTexture")
+                texture_path (str): The file path to the texture image
+                output_type (str): The type of output to connect ("rgb" or "r")
+            """
+
             texture_shader = UsdShade.Shader.Define(
                 self.stage,
                 f"{material_path}/{texture_label}",

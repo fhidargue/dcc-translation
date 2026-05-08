@@ -21,6 +21,10 @@ import os
 class MayaAdapter(DCCAdapter):
     """
     Extracts hierarchical SceneGraph from Maya DAG
+
+    Attributes:
+        cmds: Reference to maya.cmds module (or None if not in Maya)
+        om: Reference to maya.api.OpenMaya module (or None if not in Maya)
     """
 
     def __init__(self):
@@ -34,17 +38,26 @@ class MayaAdapter(DCCAdapter):
         self.cmds = cmds
         self.om = om
 
-    def get_source_dcc_name(self):
+    def get_source_dcc_name(self) -> str:
         return DCC_MAYA
 
-    def get_scene_name(self):
+    def get_scene_name(self) -> str:
+        """
+        Get Maya scene name
+        """
         if self.cmds:
             path = self.cmds.file(query=True, sceneName=True)
 
             return os.path.basename(path) if path else "untitled_scene"
         return "unknown_scene"
 
-    def extract_scene_nodes(self, rules=None):
+    def extract_scene_nodes(self, rules=None) -> list:
+        """
+        Extract scene nodes from Maya
+
+        Args:
+            rules (dict, optional): Validation rules that may influence extraction
+        """
         if self.cmds is None:
             raise RuntimeError("MayaAdapter requires Maya environment")
 
@@ -69,7 +82,10 @@ class MayaAdapter(DCCAdapter):
                 scene_nodes.append(node)
         return scene_nodes
 
-    def _get_root_transforms(self):
+    def _get_root_transforms(self) -> list:
+        """
+        Get root transform nodes in the Maya scene (nodes without transform parents)
+        """
         transforms = self.cmds.ls(type="transform", long=True)
         roots = []
 
@@ -80,7 +96,13 @@ class MayaAdapter(DCCAdapter):
                 roots.append(node)
         return roots
 
-    def _build_node_recursive(self, transform):
+    def _build_node_recursive(self, transform: str) -> SceneNode:
+        """
+        Recursively build SceneNode from a Maya transform node, extracting geometry and metadata as needed
+
+        Args:
+            transform (str): Full path of the Maya transform node
+        """
         excluded = getattr(self, "excluded_types", set())
 
         transform_type = self.cmds.nodeType(transform)
@@ -99,6 +121,11 @@ class MayaAdapter(DCCAdapter):
         matrix = np.array(
             self.cmds.xform(transform, q=True, matrix=True, os=True)
         ).reshape((4, 4))
+
+        # Obtain the local tranform attributes
+        translate = self.cmds.getAttr(f"{transform}.translate")[0]
+        rotate = self.cmds.getAttr(f"{transform}.rotate")[0]
+        scale = self.cmds.getAttr(f"{transform}.scale")[0]
 
         # Mesh detection
         mesh_shapes = [
@@ -147,6 +174,9 @@ class MayaAdapter(DCCAdapter):
                 "rotateOrder": rotate_order,
                 "visibility": visibility,
                 "shortName": short_name,
+                "translate": list(translate),
+                "rotate": list(rotate),
+                "scale": list(scale),
             }
         }
 

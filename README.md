@@ -1,7 +1,7 @@
 # DCC Translation Pipeline
 
 ![Python](https://img.shields.io/badge/python-3.13-blue)
-![Maya](https://img.shields.io/badge/Maya-2024+-orange)
+![Maya](https://img.shields.io/badge/Maya-2025+-orange)
 ![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.x-orange)
 ![OpenUSD](https://img.shields.io/badge/OpenUSD-supported-brightgreen)
 ![MongoDB](https://img.shields.io/badge/MongoDB-supported-brightgreen)
@@ -53,7 +53,7 @@ The architecture supports future adapters for additional DCC tools such as `Houd
 
 ## User Guide
 
-Please refer to the [USERGIDE.md](./USERGUIDE.md) file for installation and tool usage.
+Please refer to the [USERGUIDE.md](./USERGUIDE.md) file for installation and tool usage.
 
 ## Features
 
@@ -67,7 +67,8 @@ Please refer to the [USERGIDE.md](./USERGUIDE.md) file for installation and tool
 6. [Command Line Interface](#6-command-line-interface)
 7. [Unreal Engine Import Demonstration](#7-unreal-engine-import-demonstration)
 8. [Maya Publish Tool Integration](#8-maya-publish-tool-integration)
-9. [Testing](#9-testing)
+9. [Drag-and-Drop Maya Installation](#9-drag-and-drop-maya-installation)
+10. [Testing](#10-testing)
 
 ### 1. Scene Validation
 
@@ -196,6 +197,8 @@ Export preserves:
 - Pivots
 - Namespaces
 - Instancing relationships
+- Per-mesh separation
+- Unreal-compatible actor hierarchy
 
 USD acts as the canonical interchange layer between validation and downstream consumption stages.
 
@@ -302,25 +305,103 @@ task.automated = True
 unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
 ```
 
-This demonstrates USD as a transport layer between offline DCC environments and realtime engines.
+The exporter preserves hierarchical mesh separation, allowing Unreal Engine to import scene objects individually rather than collapsing the entire environment into a single static mesh.
+
+This enables:
+
+- Per-object transforms
+- Individual actor manipulation
+- Object-level selection
+- Non-destructive scene reconstruction
+- USD Stage hierarchy preservation
 
 ### 8. Maya Publish Tool Integration
 
-The framework includes a Maya-side publishing entry point:
+The framework includes a fully integrated Maya publishing and validation tool built with `PySide6`.
 
+Features include:
+
+- Dockable Maya validation UI
+- Live YAML validation profile editing
+- Dynamic rule rendering
+- Validation state tracking
+- USD publish workflow integration
+- Reloadable pipeline modules for iterative development
+- Shelf integration
+- Drag-and-drop Maya installation
+
+The validation UI allows artists and TDs to modify validation rules directly inside Maya without restarting the application.
+
+Validation profiles are loaded dynamically from YAML:
+
+```bash
+validation_profiles/
+    maya_to_unreal.yml
 ```
-dcc_translation/maya_plugin/publish_tool.py
+
+Example live-editable rules:
+
+```yaml
+require_frozen_transforms:
+  enabled: true
+  severity: error
+
+allowed_node_types:
+  - transform
+  - mesh
 ```
 
-This enables validation and export directly from within Maya as part of a structured artist publishing workflow.
+The UI automatically generates widgets from validation schema definitions:
 
-### 9. Testing
+- Checkboxes
+- Combo boxes
+- Editable lists
+- Text fields
+
+Publishing is validation-gated:
+
+- `Publish USD` remains disabled until validation succeeds
+- Modifying any validation field invalidates the publish state
+- Profiles can be saved and reloaded live
+
+### 9 Drag-and-Drop Maya Installation
+
+The project includes a drag-and-drop Maya installer:
+
+```bash
+drag_to_maya.py
+```
+
+Installation workflow:
+
+1. Open Maya
+2. Drag `drag_to_maya.py` into the viewport
+3. Confirm installation
+
+The installer automatically:
+
+- Creates the Maya `.mod` module file
+- Registers plugin paths
+- Loads the publishing plugin
+- Enables plugin autoload
+- Creates the custom Maya shelf
+- Adds the export/validation shelf button
+
+The generated shelf button launches:
+
+```python
+cmds.DCCExportUSD()
+```
+
+This enables rapid deployment and testing without manual environment setup.
+
+### 10. Testing
 
 The project uses pytest with nox sessions to separate standard Python tests from Maya standalone tests.
 
 Three testing entry points are available:
 
-**9.1 Run Local Tests (No Maya Required)**
+**10.1 Run Local Tests (No Maya Required)**
 
 Runs all validation, SceneGraph, USD export, registry, CLI, and pipeline tests:
 
@@ -330,7 +411,7 @@ uv run nox -s local
 
 These tests execute inside a standard Python environment and do not require Autodesk Maya.
 
-**9.2 Run Maya Standalone Tests**
+**10.2 Run Maya Standalone Tests**
 
 Runs adapter integration tests using `mayapy`:
 
@@ -353,7 +434,7 @@ uv run nox -s maya
 
 If Maya standalone is unavailable, the session is skipped automatically.
 
-**9.3 Run All Tests**
+**10.3 Run All Tests**
 
 Runs both local and Maya standalone test suites:
 
@@ -396,21 +477,35 @@ validation_profiles/
     maya_to_usd.yml
     maya_to_unreal.yml
 
-maya_plugin/
-    publish_tool.py
+ui/
+    validation_window.py
+    rule_renderer.py
+    widget_factory.py
+    validation_profile_model.py
 
-cli.py
+maya_module/
+    plug-ins/
+    scripts/
+    utils/
+
+/cli
+    cli.py
+
+drag_to_maya.py
 ```
 
 ## Workflow
 
 ### Export from Maya
 
+- Launch Validation UI
+- Edit YAML validation profiles live
 - Validate scene
 - Construct SceneGraph
 - Generate USD stage
-- Generate Metadata
+- Generate metadata
 - Log translation via Registry Backend
+- Publish USD to Unreal Engine
 
 ### Import into Unreal Engine
 
@@ -463,6 +558,11 @@ This project addresses that problem by implementing:
 - Interchangeable registry backends (SQLite / MongoDB).
 - CLI publishing automation.
 - Structured metadata generation.
+- Live YAML-driven validation editing inside Maya.
+- Dockable PySide6 validation UI.
+- Drag-and-drop Maya installation workflow.
+- Validation-gated USD publishing.
+- Dynamic rule rendering architecture.
 
 The resulting system demonstrates how structured scene publishing workflows can improve reliability, automation, and interoperability across heterogeneous DCC environments.
 

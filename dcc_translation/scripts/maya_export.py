@@ -10,17 +10,21 @@ from dcc_translation.utils.backend_detection import select_registry_backend
 from dcc_translation.utils.maya_logging import info, warning, error
 
 
-def publish_usd(output_path, target="unreal"):
+def publish_usd(output_path: str, target: str = "unreal") -> str:
     """
     Maya publish scene into USDA file
 
     Runs:
-    Scene extraction
-    Validation
-    USD export
-    Metadata write
-    Registry logging
-    Backend detection (Mongo or SQLite fallback)
+        Scene extraction
+        Validation
+        USD export
+        Metadata write
+        Registry logging
+        Backend detection (Mongo or SQLite fallback)
+
+    Args:
+        output_path (str): The file path where the USDA file will be saved
+        target (str): The target DCC or engine for validation profile selection (default: "unreal")
     """
 
     info("Reloading pipeline modules")

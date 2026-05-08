@@ -22,14 +22,14 @@ MONGO_PIPELINE_PASS = get_env("DCC_MONGO_PIPELINE_PASS", "pipeline_pass")
 SQLITE_PATH = get_env("DCC_SQLITE_PATH", None)
 
 
-def mongo_admin_uri():
+def mongo_admin_uri() -> str:
     return (
         f"mongodb://{MONGO_ADMIN_USER}:{MONGO_ADMIN_PASS}"
         f"@{MONGO_HOST}:{MONGO_PORT}/admin"
     )
 
 
-def mongo_pipeline_uri():
+def mongo_pipeline_uri() -> str:
     return (
         f"mongodb://{MONGO_PIPELINE_USER}:{MONGO_PIPELINE_PASS}"
         f"@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"

@@ -12,12 +12,22 @@ import uuid
 
 
 def run_translation_pipeline(
-    adapter,
-    profile_path,
-    output_path,
-    backend="sqlite",
-    db_path=None,
-):
+    adapter: object,
+    profile_path: str,
+    output_path: str,
+    backend: str = "sqlite",
+    db_path: str | None = None,
+) -> None:
+    """
+    Main function that runs the translation pipeline
+
+    Args:
+        adapter: DCC-specific adapter that implements the required interface
+        profile_path: Path to the validation profile YAML file
+        output_path: Path where the exported data will be saved
+        backend: Type of registry backend to use (default: "sqlite")
+        db_path: Path to the database file (required for SQLite backend)
+    """
     if backend == "sqlite" and db_path is None:
         raise ValueError("SQLite backend requires explicit db_path")
 

@@ -8,11 +8,23 @@ from pathlib import Path
 class MetadataWriter:
     @staticmethod
     def _profile_hash(profile_path: str) -> str:
+        """
+        Calculate a hash of the validation profile
+
+        Args:
+            profile_path (str): Path to the validation profile file
+        """
         with open(str(profile_path), "rb") as file:
             return hashlib.sha1(file.read()).hexdigest()
 
     @staticmethod
-    def _count_nodes(exported_nodes):
+    def _count_nodes(exported_nodes: int | list | None) -> int:
+        """
+        Count the number of exported nodes
+
+        Args:
+            exported_nodes: Can be an int, a list of nodes, or any iterable of nodes
+        """
         if exported_nodes is None:
             return 0
 
@@ -34,10 +46,26 @@ class MetadataWriter:
         validation_profile: str,
         validation_profile_hash: str,
         validation_status: str,
-        report,
-        exported_nodes,
-        node_uuids=None,
-    ):
+        report: object,
+        exported_nodes: int | list | None,
+        node_uuids: list[str] | None = None,
+    ) -> str:
+        """
+        Write metadata to a JSON file alongside the exported data
+
+        Args:
+            output_path (str): Path to the exported data file
+            publish_id (str): Unique identifier for the publish
+            scene_name (str): Name of the source scene
+            source_dcc (str): Name of the source DCC application
+            target_dcc (str): Name of the target DCC application
+            validation_profile (str): Name of the validation profile used
+            validation_profile_hash (str): Hash of the validation profile
+            validation_status (str): Result of the validation (e.g., "passed", "failed")
+            report: Validation report containing errors and warnings
+            exported_nodes: Number of nodes exported or a list of exported nodes
+            node_uuids: Optional list of UUIDs for the exported nodes
+        """
         node_count = MetadataWriter._count_nodes(exported_nodes)
 
         metadata = {

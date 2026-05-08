@@ -17,7 +17,7 @@ def _ensure_mayapy(session):
 @nox.session
 def local(session):
     """Run normal uv based tests"""
-    session.run("uv", "run", "pytest", "-m", "local")
+    session.run("uv", "run", "pytest", "dcc_translation/tests/local", "-m", "local")
 
 
 @nox.session
@@ -27,7 +27,6 @@ def maya(session):
 
     session.run(
         MAYAPY,
-        "-m",
         "pytest",
         "dcc_translation/tests/maya",
         "-m",
@@ -39,7 +38,7 @@ def maya(session):
 @nox.session
 def all(session):
     """Run all tests"""
-    session.run("uv", "run", "pytest", "-m", "local")
+    session.run("uv", "run", "pytest", "dcc_translation/tests/local", "-m", "local")
 
     _ensure_mayapy(session)
 
