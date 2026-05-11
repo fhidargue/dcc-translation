@@ -1,4 +1,5 @@
 import pytest
+import maya.cmds as cmds
 
 from dcc_translation.controllers.validation_controller import (
     validate_scene,
@@ -25,6 +26,18 @@ class MockReport:
         message,
     ):
         self.warnings.append(message)
+
+
+@pytest.fixture(autouse=True)
+def clean_scene():
+    """
+    Create empty Maya scene for each test
+    """
+
+    cmds.file(
+        new=True,
+        force=True,
+    )
 
 
 @pytest.fixture

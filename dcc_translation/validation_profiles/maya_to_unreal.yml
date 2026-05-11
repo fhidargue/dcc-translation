@@ -1,4 +1,7 @@
 pipeline_target: unreal
+check_duplicate_names:
+  enabled: true
+  severity: error
 require_frozen_transforms:
   enabled: true
   severity: error

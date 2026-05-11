@@ -1,13 +1,16 @@
 pipeline_target: unreal
+check_duplicate_names:
+  enabled: true
+  severity: error
 require_frozen_transforms:
   enabled: true
   severity: error
 allowed_node_types:
-- transform
-- mesh
+  - transform
+  - mesh
 forbidden_node_types:
-- constraint
-- locator
+  - constraint
+  - locator
 unit_scale: cm
 require_geometry:
   enabled: true
@@ -17,7 +20,7 @@ enforce_naming_convention:
   enabled: true
   severity: warning
 exclude_node_types:
-- camera
-- locator
-- constraint
+  - camera
+  - locator
+  - constraint
 allow_empty_transforms: true

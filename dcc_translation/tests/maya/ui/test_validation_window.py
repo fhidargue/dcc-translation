@@ -206,7 +206,7 @@ def test_validation_warnings(
 
     output = window.output_console.toPlainText()
 
-    assert "Warnings:" in output
+    assert "[WARNING]" in output
     assert "Non-critical issue" in output
 
 
@@ -252,7 +252,7 @@ def test_reload_resets_state(
     window.set_profile_dirty(True)
     window.set_validation_state(True)
 
-    window.reload_profile()
+    window.reset_profile()
 
     assert window.profile_dirty is False
     assert window.validation_passed is False

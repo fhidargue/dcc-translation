@@ -1,12 +1,13 @@
 from pathlib import Path
+
 import numpy as np
 import pytest
 
-from dcc_translation.core.validator import (
-    ValidationProfileLoader,
-    SceneValidator,
-)
 from dcc_translation.core.scene_graph import SceneNode
+from dcc_translation.core.validator import (
+    SceneValidator,
+    ValidationProfileLoader,
+)
 
 pytestmark = pytest.mark.local
 
@@ -25,7 +26,7 @@ def base_rules():
 
 
 def make_node(
-    name="cube",
+    name="Cube",
     node_type="mesh",
     transform=None,
     mesh_path="shape",
@@ -55,13 +56,26 @@ def test_non_frozen_transform(identity_matrix):
             "enabled": True,
             "severity": "error",
         },
-        "require_geometry": {"enabled": False},
+        "require_geometry": {
+            "enabled": False,
+        },
     }
 
     node = make_node(transform=np.ones((4, 4)))
-    report = SceneValidator(rules).validate([node])
+
+    node.metadata = {
+        "maya": {
+            "translate": [10, 0, 0],
+            "rotate": [0, 0, 0],
+            "scale": [1, 1, 1],
+        }
+    }
+
+    validator = SceneValidator(rules)
+    report = validator.validate([node])
 
     assert report.errors
+    assert "Non-frozen transform detected on Cube" in report.errors
 
 
 def test_missing_geometry(identity_matrix):
@@ -102,10 +116,17 @@ def test_invalid_node_name(base_rules):
 
 
 def test_duplicate_names(base_rules):
-    node1 = make_node(name="cube")
-    node2 = make_node(name="cube")
+    node1 = make_node(name="Cube")
+    node2 = make_node(name="Cube")
 
-    report = SceneValidator(base_rules).validate([node1, node2])
+    rules = base_rules | {
+        "check_duplicate_names": {
+            "enabled": True,
+            "severity": "error",
+        }
+    }
+
+    report = SceneValidator(rules).validate([node1, node2])
 
     assert report.errors
 

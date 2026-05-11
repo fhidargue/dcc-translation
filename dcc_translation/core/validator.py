@@ -110,27 +110,47 @@ class SceneValidator:
         Args:
             scene_nodes (list): List of SceneNode instances to validate
         """
-        for node in scene_nodes:
-            self._validate_node_recursive(node)
+        all_nodes = list(self._iter_nodes(scene_nodes))
+
+        # Global scene validations
+        self._check_orphan_nodes(all_nodes)
+        self._check_unit_scale()
+
+        duplicate_rule = self.rules.get(
+            "check_duplicate_names",
+            {},
+        )
+
+        if duplicate_rule.get("enabled", False):
+            self._check_duplicate_names(
+                all_nodes,
+                duplicate_rule.get("severity", "error"),
+            )
+
+        # Per node validations
+        for node in all_nodes:
+            if node.node_type in self.excluded_types:
+                continue
+
+            self._validate_node(node)
 
         return self.report
 
-    def _validate_node_recursive(
+    def _iter_nodes(
         self,
-        node: SceneNode,
-    ) -> None:
+        nodes: list[SceneNode],
+    ):
         """
-        Recursively validate SceneGraph nodes
+        Recursively iterate SceneGraph nodes
 
         Args:
-            node: SceneNode instance to validate
+            nodes (list): List of the nodes to validate
         """
 
-        if node.node_type not in self.excluded_types:
-            self._validate_node(node)
+        for node in nodes:
+            yield node
 
-        for child in node.children:
-            self._validate_node_recursive(child)
+            yield from self._iter_nodes(node.children)
 
     def _validate_node(self, node: SceneNode) -> None:
         """
@@ -274,19 +294,26 @@ class SceneValidator:
             message = f"Invalid naming convention on node {node.name}"
             self._report(message, rule["severity"], node.name)
 
-    def _check_duplicate_names(self, scene_nodes: list[SceneNode]) -> None:
+    def _check_duplicate_names(
+        self,
+        scene_nodes: list[SceneNode],
+        severity: str = "error",
+    ) -> None:
         """
         Check for duplicate node names
 
         Args:
-            scene_nodes: List of SceneNode instances to validate
+            scene_nodes: List of SceneNode instances
+            severity: Validation severity
         """
+
         node_seen = set()
 
         for node in scene_nodes:
             if node.name in node_seen:
-                self.report.error(
+                self._report(
                     f"Duplicate node name detected: {node.name}",
+                    severity,
                     node.name,
                 )
             else:
