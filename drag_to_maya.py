@@ -47,10 +47,10 @@ def write_module_file(modules_dir: Path) -> None:
 
     with open(module_path, "w") as file:
         file.write(f"+ {MODULE_NAME} {MODULE_VERSION} {project_root}\n")
-        file.write("PYTHONPATH +:= .\n")
-        file.write("MAYA_PLUG_IN_PATH +:= maya_module/plug-ins\n")
-        file.write("XBMLANGPATH +:= maya_module/plug-ins/icons\n")
-        file.write("MAYA_SCRIPT_PATH +:= maya_module/scripts\n")
+        file.write(f"PYTHONPATH +:= {project_root}\n")
+        file.write(f"MAYA_PLUG_IN_PATH +:= {project_root}/maya_module/plug-ins\n")
+        file.write(f"XBMLANGPATH +:= {project_root}/maya_module/icons/\n")
+        file.write(f"MAYA_SCRIPT_PATH +:= {project_root}/maya_module/scripts\n")
 
     info(f"Module {MODULE_NAME} installed successfully")
 
@@ -100,6 +100,14 @@ def create_shelf() -> None:
     existing_button = get_shelf_button(SHELF_NAME, BUTTON_LABEL)
     button_command = f"import maya.cmds as cmds; cmds.{COMMAND_NAME}()"
 
+    # Resolve the path for the shelf button icons
+    icon_path = (
+        Path(__file__).resolve().parent
+        / "maya_module"
+        / "icons"
+        / BUTTON_ICON
+    )
+
     # Update existing button
     if existing_button:
         cmds.shelfButton(
@@ -107,7 +115,7 @@ def create_shelf() -> None:
             edit=True,
             command=button_command,
             annotation=BUTTON_ANNOTATION,
-            image1=BUTTON_ICON,
+            image=str(icon_path),
         )
         info("Updated existing shelf button")
 
@@ -116,7 +124,7 @@ def create_shelf() -> None:
         cmds.shelfButton(
             label=BUTTON_LABEL,
             annotation=BUTTON_ANNOTATION,
-            image1=BUTTON_ICON,
+            image=str(icon_path),
             command=button_command,
             sourceType="python",
             parent=SHELF_NAME,
