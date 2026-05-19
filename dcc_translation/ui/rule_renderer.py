@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLabel, QWidget, QLayout
+from PySide6.QtWidgets import QLabel, QWidget, QLayout, QSizePolicy
 
 from dcc_translation.ui.widget_factory import (
     create_checkbox,
@@ -14,6 +14,21 @@ from dcc_translation.utils.utils import (
 from dcc_translation.ui.validation_schema import (
     VALIDATION_FIELDS,
 )
+
+MAX_FIELD_WIDTH = 260
+
+
+def style_widget(widget) -> None:
+    """
+    Apply consistent sizing/styling
+    """
+
+    widget.setMaximumWidth(MAX_FIELD_WIDTH)
+
+    widget.setSizePolicy(
+        QSizePolicy.Fixed,
+        QSizePolicy.Fixed,
+    )
 
 
 def render_rule(
@@ -32,7 +47,15 @@ def render_rule(
         value: The value of the validation rule (type determines widget)
     """
 
+    layout.setSpacing(12)
     title = QLabel(get_validation_field_label(rule_name))
+    title.setStyleSheet(
+        """
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        """
+    )
 
     layout.addWidget(title)
 
@@ -178,7 +201,7 @@ def render_boolean_field(
 
     label = label or get_validation_field_label(rule_name)
 
-    return create_checkbox(
+    widget = create_checkbox(
         label,
         value,
         lambda state: window.update_profile_value(
@@ -187,6 +210,10 @@ def render_boolean_field(
             state,
         ),
     )
+
+    style_widget(widget)
+
+    return widget
 
 
 def render_string_field(
@@ -234,6 +261,8 @@ def render_string_field(
                 new_value,
             ),
         )
+
+    style_widget(widget)
 
     # Top level string
     if label is None:

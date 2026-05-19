@@ -101,12 +101,7 @@ def create_shelf() -> None:
     button_command = f"import maya.cmds as cmds; cmds.{COMMAND_NAME}()"
 
     # Resolve the path for the shelf button icons
-    icon_path = (
-        Path(__file__).resolve().parent
-        / "maya_module"
-        / "icons"
-        / BUTTON_ICON
-    )
+    icon_path = Path(__file__).resolve().parent / "maya_module" / "icons" / BUTTON_ICON
 
     # Update existing button
     if existing_button:

@@ -17,13 +17,12 @@ This project demonstrates how modern animation and VFX pipelines can standardize
 
 Different DCC tools store scene structure differently:
 
-| DCC            | Scene Structure |
-|---------------|----------------|
-| Maya          | DAG hierarchy  |
+| DCC           | Scene Structure |
+| ------------- | --------------- |
+| Maya          | DAG hierarchy   |
 | Unreal Engine | Actor hierarchy |
 
 To improve interoperability, this project introduces a lightweight `SceneGraph` layer that normalizes essential scene information before constructing a USD stage:
-
 
 ## Translation Pipeline Execution
 
@@ -54,6 +53,8 @@ The architecture supports future adapters for additional DCC tools such as `Houd
 ## User Guide
 
 Please refer to the [USERGUIDE.md](./USERGUIDE.md) file for installation and tool usage.
+
+Additionally, here is a tutorial video for guidance: https://youtu.be/HBnfSlUyQT8
 
 ## Features
 
@@ -138,8 +139,8 @@ Profiles enable consistent validation across multiple pipeline targets without m
 Scenes are converted into a lightweight canonical structure before USD export:
 
 ```
-Maya 
-    > SceneGraph 
+Maya
+    > SceneGraph
         > USD Stage
 ```
 
@@ -204,7 +205,7 @@ USD acts as the canonical interchange layer between validation and downstream co
 
 ### 4. Metadata Serialization
 
-Each publish operation generates structured metadata describing the translation process: 
+Each publish operation generates structured metadata describing the translation process:
 
 ```
 scene.metadata.json

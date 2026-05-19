@@ -147,6 +147,30 @@ class ValidationWindow(
 
         self.publish_button.clicked.connect(self.publish_scene)
 
+        # UI Styling
+        self.main_layout.setContentsMargins(
+            10,
+            10,
+            10,
+            10,
+        )
+
+        self.content_layout.setSpacing(16)
+
+        self.details_layout.setAlignment(Qt.AlignTop)
+        self.details_layout.setSpacing(12)
+        self.details_layout.setContentsMargins(
+            12,
+            12,
+            12,
+            12,
+        )
+
+        self.rules_list.setMinimumWidth(220)
+        self.rules_list.setMaximumWidth(260)
+
+        self.output_console.setMinimumHeight(160)
+
     def populate_rules(self) -> None:
         """
         Populate validation rule list
