@@ -293,18 +293,7 @@ This supports batch publishing workflows and automation pipelines.
 
 ### 7. Unreal Engine Import Demonstration
 
-Exported USD stages can be automatically imported into Unreal Engine:
-
-```python
-import unreal
-
-task = unreal.AssetImportTask()
-task.filename = "scene.usd"
-task.destination_path = "/Game/PipelineImports"
-task.automated = True
-
-unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
-```
+Exported USD stages can be manually imported into Unreal Engine using the built-in USD import workflow.
 
 The exporter preserves hierarchical mesh separation, allowing Unreal Engine to import scene objects individually rather than collapsing the entire environment into a single static mesh.
 
@@ -314,7 +303,9 @@ This enables:
 - Individual actor manipulation
 - Object-level selection
 - Non-destructive scene reconstruction
-- USD Stage hierarchy preservation
+- USD stage hierarchy preservation
+
+Future work may include automated Unreal Engine import workflows using the Unreal Python API and Asset Import Tasks.
 
 ### 8. Maya Publish Tool Integration
 
@@ -575,3 +566,5 @@ The resulting system demonstrates how structured scene publishing workflows can 
 - Asset version tracking.
 - Dependency graph validation.
 - Cloud registry backends.
+- Automated Unreal Engine import workflows using the Unreal Python API.
+- Automated asset publishing and scene reconstruction inside Unreal Engine.
