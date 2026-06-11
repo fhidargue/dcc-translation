@@ -119,7 +119,7 @@ Maya Scene Extraction
 
 ## User Guide
 
-Please refer to the ![USERGUIDE.md](./USERGUIDE.md) documentation file for installation and usage instructions.
+Please refer to the [USERGUIDE.md](./USERGUIDE.md) documentation file for installation and usage instructions.
 
 Project showcase and walkthrough video:
 
