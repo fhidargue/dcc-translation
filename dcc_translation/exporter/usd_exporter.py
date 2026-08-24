@@ -217,12 +217,15 @@ class USDExporter:
         shader = UsdShade.Shader.Define(self.stage, f"{material_path}/PreviewSurface")
         shader.CreateIdAttr("UsdPreviewSurface")
 
-        # Adds a default diffuse grey color
-        shader.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).Set(
-            (0.8, 0.8, 0.8)
-        )
-
         textures = maya_data.get("textures", {})
+
+        # Sets the default diffuse color
+        diffuse_color = textures.get("diffuseColorValue", (0.8, 0.8, 0.8))
+
+        shader.CreateInput(
+            "diffuseColor",
+            Sdf.ValueTypeNames.Color3f
+        ).Set(diffuse_color)
 
         def create_texture_output(
             texture_label, texture_path, output_type="rgb"

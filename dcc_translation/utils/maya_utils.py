@@ -233,4 +233,10 @@ def extract_material_data(self, mesh: str) -> tuple[str | None, dict]:
     except Exception:
         pass
 
+    try:
+        color = self.cmds.getAttr(f"{material}.color")[0]
+        textures["diffuseColorValue"] = color
+    except Exception:
+        pass
+
     return material, textures
